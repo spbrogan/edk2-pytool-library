@@ -114,18 +114,21 @@ class Edk2Path(object):
     #
     # @ret Name of Package that the module is in.
     def GetContainingPackage(self, InputPath):
-        self.logger.debug("GetContainingPackage: %s" % InputPath)
+        self.logger.critical("GetContainingPackage: %s" % InputPath)
 
         dirpathprevious = os.path.dirname(InputPath)
         dirpath = os.path.dirname(InputPath)
+        self.logger.critical("start loop")
         while(dirpath is not None):
+            self.logger.critical("dirpath: " + dirpath)
+            self.logger.critical("dirpathprevious: " + dirpathprevious)
             #
             # if at the root of a packagepath return the previous dir.
             # this catches cases where a package has no DEC
             #
             if(dirpath in self.PackagePathList):
                 a = os.path.basename(dirpathprevious)
-                self.logger.debug("Reached Package Path.  Using previous directory: %s" % a)
+                self.logger.critical("Reached Package Path.  Using previous directory: %s" % a)
                 return a
             #
             # if at the root of the workspace return the previous dir.
@@ -133,7 +136,7 @@ class Edk2Path(object):
             #
             if(dirpath == self.WorkspacePath):
                 a = os.path.basename(dirpathprevious)
-                self.logger.debug("Reached Workspace Path.  Using previous directory: %s" % a)
+                self.logger.critical("Reached Workspace Path.  Using previous directory: %s" % a)
                 return a
             #
             # Check for a DEC file in this folder
@@ -142,15 +145,15 @@ class Edk2Path(object):
             for f in os.listdir(dirpath):
                 if fnmatch.fnmatch(f, '*.dec'):
                     a = os.path.basename(dirpath)
-                    self.logger.debug("Found DEC file at %s.  Pkg is: %s", dirpath, a)
+                    self.logger.critical("Found DEC file at %s.  Pkg is: %s", dirpath, a)
                     return a
 
             dirpathprevious = dirpath
             dirpath = os.path.dirname(dirpath)
 
-        self.logger.error("Failed to find containing package for %s" % InputPath)
-        self.logger.info("PackagePath is: %s" % os.pathsep.join(self.PackagePathList))
-        self.logger.info("Workspace path is : %s" % self.WorkspacePath)
+        self.logger.critical("Failed to find containing package for %s" % InputPath)
+        self.logger.critical("PackagePath is: %s" % os.pathsep.join(self.PackagePathList))
+        self.logger.critical("Workspace path is : %s" % self.WorkspacePath)
         return None
 
     # Find the list of modules (infs) that file path is in
