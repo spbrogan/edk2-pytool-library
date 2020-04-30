@@ -25,6 +25,7 @@ class Edk2Path(object):
         self.WorkspacePath = ws
         self.logger = logging.getLogger("Edk2Path")
         if(not os.path.isabs(ws)):
+            self.logger.critical("SEAN --- SEEE this...workspace using getcwd")
             self.WorkspacePath = os.path.abspath(os.path.join(os.getcwd(), ws))
 
         if(not os.path.isdir(self.WorkspacePath)):
@@ -115,15 +116,13 @@ class Edk2Path(object):
     # @ret Name of Package that the module is in.
     def GetContainingPackage(self, InputPath):
         self.logger.critical("GetContainingPackage: %s" % InputPath)
-        counter = 0
         dirpathprevious = os.path.dirname(InputPath)
         dirpath = os.path.dirname(InputPath)
         self.logger.critical("Workspace root is" + self.WorkspacePath)
         self.logger.critical("start loop")
-        while(dirpath is not None and counter < 12):
+        while(dirpath is not None):
             self.logger.critical("dirpath: " + dirpath)
             self.logger.critical("dirpathprevious: " + dirpathprevious)
-            counter += 1
             #
             # if at the root of a packagepath return the previous dir.
             # this catches cases where a package has no DEC
@@ -140,6 +139,11 @@ class Edk2Path(object):
                 a = os.path.basename(dirpathprevious)
                 self.logger.critical("Reached Workspace Path.  Using previous directory: %s" % a)
                 return a
+
+            if(os.path.samefile(dirpath, self.WorkspacePath)):
+                a = os.path.basename(dirpathprevious)
+                self.logger.critical("Reached Workspace Path with samefile.  Using previous directory: %s" % a)
+                return a
             #
             # Check for a DEC file in this folder
             # if here then return the directory name as the "package"
@@ -150,8 +154,18 @@ class Edk2Path(object):
                     self.logger.critical("Found DEC file at %s.  Pkg is: %s", dirpath, a)
                     return a
 
+            #
+            # Catch all exit.  Have seen endless loop cases on Windows
+            # with case insensitivity issues with path.
+            #
+            if dirpath == dirpathprevious:
+                self.logger.error("Never found package.  Endless loop")
+                break
+
             dirpathprevious = dirpath
             dirpath = os.path.dirname(dirpath)
+
+
 
         self.logger.critical("Failed to find containing package for %s" % InputPath)
         self.logger.critical("PackagePath is: %s" % os.pathsep.join(self.PackagePathList))
