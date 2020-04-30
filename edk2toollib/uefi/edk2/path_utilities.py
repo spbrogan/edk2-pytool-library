@@ -115,13 +115,15 @@ class Edk2Path(object):
     # @ret Name of Package that the module is in.
     def GetContainingPackage(self, InputPath):
         self.logger.critical("GetContainingPackage: %s" % InputPath)
-
+        counter = 0
         dirpathprevious = os.path.dirname(InputPath)
         dirpath = os.path.dirname(InputPath)
+        self.logger.critical("Workspace root is" + self.WorkspacePath)
         self.logger.critical("start loop")
-        while(dirpath is not None):
+        while(dirpath is not None and counter < 12):
             self.logger.critical("dirpath: " + dirpath)
             self.logger.critical("dirpathprevious: " + dirpathprevious)
+            counter += 1
             #
             # if at the root of a packagepath return the previous dir.
             # this catches cases where a package has no DEC
